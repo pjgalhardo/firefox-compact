@@ -1,0 +1,31 @@
+{
+  "manifest_version": 3,
+  "name": "Compact Mode",
+  "version": "0.1.0",
+  "description": "Zen-style compact mode for Firefox: hide the tab bar, the URL bar, or both, and bring them back by hovering the top of the window.",
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "compact-mode@rs4t",
+      "strict_min_version": "128.0"
+    }
+  },
+  "icons": {
+    "48": "icon.svg",
+    "96": "icon.svg"
+  },
+  "permissions": ["storage"],
+  "background": {
+    "scripts": ["background.js"]
+  },
+  "action": {
+    "default_title": "Compact Mode",
+    "default_popup": "popup.html",
+    "default_icon": "icon.svg"
+  },
+  "commands": {
+    "toggle-compact-mode": {
+      "suggested_key": { "default": "Ctrl+Alt+C" },
+      "description": "Turn compact mode on or off"
+    }
+  }
+}

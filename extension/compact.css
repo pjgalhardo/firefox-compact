@@ -1,0 +1,141 @@
+/* ===================================================================
+   COMPACT MODE FOR FIREFOX
+   Hides the tab bar, the URL bar, or both, and brings them back when you
+   hover the top of the window. Works with any theme: it only hides and
+   reveals toolbars, it never changes their colors.
+
+   The Compact Mode extension switches modes by putting invisible
+   characters in the window's title preface (the titlepreface attribute
+   on the window's root element):
+     U+2063         hide the tab bar (or the tab sidebar with vertical tabs)
+     U+2064         hide the URL bar and bookmarks bar
+     both together  hide everything; the toolbars float over the page
+                    while you hover the top edge
+
+   Setup: import this file at the very top of BOTH userChrome.css and
+   userContent.css:  @import "compact.css";
+   (userContent.css is only used so the extension can tell it's set up.)
+   =================================================================== */
+
+/* Setup check - lets the extension see that this file is installed.
+   Only matches the extension's own pages, never websites. */
+@-moz-document url-prefix("moz-extension://") {
+  #compact-mode-probe {
+    --compact-mode-css: v1;
+  }
+}
+
+/* Everything below only applies to the main browser window. */
+@-moz-document url("chrome://browser/content/browser.xhtml") {
+  :root {
+    --compact-mode-duration: 0.2s;
+    /* Height of the invisible strip at the top edge that reveals the
+       toolbars when everything is hidden. */
+    --compact-mode-hot-zone: 4px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    :root {
+      --compact-mode-duration: 0s;
+    }
+  }
+
+  /* Firefox's own fullscreen and the Customize screen manage the
+     toolbars themselves, so compact mode steps aside there. */
+  :root:not([sizemode="fullscreen"], [inDOMFullscreen], [customizing]) {
+
+    /* ---------- One row hidden: it collapses, and slides back in
+       (pushing the page down) while you hover the visible row ---------- */
+
+    &[titlepreface*="\2063"]:not([titlepreface*="\2064"]) #TabsToolbar,
+    &[titlepreface*="\2064"]:not([titlepreface*="\2063"]) :is(#nav-bar, #PersonalToolbar) {
+      min-height: 0 !important;
+      max-height: 0 !important;
+      opacity: 0 !important;
+      overflow: clip !important;
+      transition:
+        max-height var(--compact-mode-duration) ease,
+        opacity var(--compact-mode-duration) ease !important;
+    }
+
+    /* Revealed while the pointer is over the toolbars, while something in
+       them has focus (e.g. the URL bar after Ctrl+L / Ctrl+T), while a
+       menu or the URL bar dropdown is open, and while a tab is dragged. */
+    &[titlepreface*="\2063"]:not([titlepreface*="\2064"]) #navigator-toolbox:is(:hover, :focus-within, [movingtab], :has(#urlbar[open], [open="true"])) #TabsToolbar,
+    &[titlepreface*="\2064"]:not([titlepreface*="\2063"]) #navigator-toolbox:is(:hover, :focus-within, [movingtab], :has(#urlbar[open], [open="true"])) :is(#nav-bar, #PersonalToolbar) {
+      max-height: 100px !important;
+      opacity: 1 !important;
+      overflow: visible !important;
+    }
+
+    /* ---------- Both rows hidden: the whole toolbar area floats over the
+       page, so the page doesn't jump when it appears ---------- */
+
+    &[titlepreface*="\2063"][titlepreface*="\2064"] #navigator-toolbox {
+      position: fixed !important;
+      inset: 0 0 auto 0 !important;
+      z-index: 10 !important;
+      /* Floating over the page needs a solid backing, or a transparent
+         theme would leave the toolbars unreadable. Canvas sits under the
+         theme's own toolbar color, so opaque themes look unchanged. */
+      background-color: Canvas !important;
+      background-image: linear-gradient(
+        var(--toolbox-background-color, transparent),
+        var(--toolbox-background-color, transparent)
+      ) !important;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25) !important;
+      /* Parked above the window, except for the hot zone at the top edge */
+      transform: translateY(calc(-100% + var(--compact-mode-hot-zone))) !important;
+      opacity: 0 !important;
+      transition:
+        transform var(--compact-mode-duration) ease,
+        opacity var(--compact-mode-duration) ease !important;
+    }
+
+    &[titlepreface*="\2063"][titlepreface*="\2064"] #navigator-toolbox:is(:hover, :focus-within, [movingtab], :has(#urlbar[open], [open="true"])) {
+      transform: none !important;
+      opacity: 1 !important;
+    }
+
+    /* ---------- Vertical tabs: hiding the tabs hides the tab sidebar.
+       It slides in over the page from its edge while you hover there,
+       the same way Firefox's own "expand on hover" sidebar floats. ---------- */
+
+    &[titlepreface*="\2063"]:has(#tabbrowser-tabs[orient="vertical"]) {
+      #sidebar-container {
+        position: absolute !important;
+        inset-block: 0 !important;
+        inset-inline-start: 0 !important;
+        z-index: 10 !important;
+        background-color: Canvas !important;
+        background-image: linear-gradient(
+          var(--toolbox-background-color, transparent),
+          var(--toolbox-background-color, transparent)
+        ) !important;
+        box-shadow: 0 0 16px rgba(0, 0, 0, 0.25) !important;
+        transform: translateX(calc(-100% + var(--compact-mode-hot-zone))) !important;
+        opacity: 0 !important;
+        transition:
+          transform var(--compact-mode-duration) ease,
+          opacity var(--compact-mode-duration) ease !important;
+      }
+
+      /* Sidebar set to the right side of the window */
+      #sidebar-container[sidebar-positionend] {
+        inset-inline-start: auto !important;
+        inset-inline-end: 0 !important;
+        transform: translateX(calc(100% - var(--compact-mode-hot-zone))) !important;
+      }
+
+      #sidebar-container:is(:hover, :focus-within, :has([movingtab], [open="true"])) {
+        transform: none !important;
+        opacity: 1 !important;
+      }
+
+      /* The resize handle would be left behind at the edge of the page */
+      #sidebar-launcher-splitter {
+        display: none !important;
+      }
+    }
+  }
+}

@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <!-- compact.css styles this element when the setup step is done -->
+  <div id="compact-mode-probe" hidden></div>
+
+  <header>
+    <h1>Compact Mode</h1>
+    <label class="switch" title="Turn compact mode on or off">
+      <input type="checkbox" id="enabled">
+      <span class="track"></span>
+    </label>
+  </header>
+
+  <fieldset class="modes">
+    <legend>Hide</legend>
+    <label><input type="radio" name="mode" value="tabs"><span>Tab bar</span></label>
+    <label><input type="radio" name="mode" value="urlbar"><span>URL bar</span></label>
+    <label><input type="radio" name="mode" value="both"><span>Both</span></label>
+  </fieldset>
+
+  <p class="hint">
+    Hover the top of the window to bring them back.<br>
+    Shortcut: <kbd id="shortcut">Ctrl+Alt+C</kbd>
+    <button id="change-shortcut" class="link" hidden>Change</button>
+  </p>
+
+  <section id="setup" hidden>
+    <h2>One-time setup needed</h2>
+    <p>
+      Firefox only allows hiding its toolbars through a small CSS file.
+      Run this in PowerShell, then fully restart Firefox:
+    </p>
+    <div class="command">
+      <code id="command"></code>
+      <button id="copy-command">Copy</button>
+    </div>
+    <details>
+      <summary>Mac, Linux, or manual setup</summary>
+      <ol>
+        <li>In <code>about:config</code>, set <code>toolkit.legacyUserProfileCustomizations.stylesheets</code> to <code>true</code>.</li>
+        <li>Open <code>about:support</code> and click <b>Open Folder</b> next to <i>Profile Folder</i>. Make a <code>chrome</code> folder there if it's missing.</li>
+        <li>Save the CSS below as <code>compact.css</code> in that folder.</li>
+        <li>Add <code>@import "compact.css";</code> as the first line of both <code>userChrome.css</code> and <code>userContent.css</code> (create them if needed).</li>
+        <li>Fully restart Firefox.</li>
+      </ol>
+      <button id="copy-css">Copy compact.css</button>
+    </details>
+  </section>
+
+  <script src="popup.js"></script>
+</body>
+</html>
