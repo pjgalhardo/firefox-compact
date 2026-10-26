@@ -22,7 +22,7 @@
    Only matches the extension's own pages, never websites. */
 @-moz-document url-prefix("moz-extension://") {
   #compact-mode-probe {
-    --compact-mode-css: comfort-v10;
+    --compact-mode-css: comfort-v11;
   }
 }
 
@@ -69,6 +69,16 @@
   /* Firefox's own fullscreen and the Customize screen manage the
      toolbars themselves, so compact mode steps aside there. */
   :root:not([sizemode="fullscreen"], [inDOMFullscreen], [customizing]) {
+
+    /* Compact mode uses the page edge itself, without Nova's chrome frame.
+       Keep split-view pane separators independent of this outer frame. */
+    &:is([titlepreface*="\2063"], [titlepreface*="\2064"]) #tabbrowser-tabpanels > :not(.split-view-panel) .browserContainer {
+      --content-area-start-radius: 0px !important;
+      border: 0 !important;
+      border-radius: 0 !important;
+      outline: none !important;
+      box-shadow: none !important;
+    }
 
     /* ---------- One row hidden: it collapses, and slides back in
        (pushing the page down) while you hover the visible row ---------- */
@@ -241,7 +251,7 @@
     }
 
     /* Address focus is deliberately absent from the shared reveal rule. */
-    &[titlepreface*="\2063"][titlepreface*="\2064"]:has(#tabbrowser-tabs[orient="vertical"]):not([titlepreface*="\2061"]:has(#urlbar:is([focused], :focus-within))):has(
+    &[titlepreface*="\2063"][titlepreface*="\2064"]:has(#tabbrowser-tabs[orient="vertical"]):has(
       #navigator-toolbox:hover,
       #navigator-toolbox[movingtab],
       #navigator-toolbox toolbarbutton[open="true"],
@@ -302,7 +312,7 @@
       }
     }
 
-    &[titlepreface*="\2064"]:not([titlepreface*="\2063"]):has(#tabbrowser-tabs[orient="vertical"]):not([titlepreface*="\2061"]:has(#urlbar:is([focused], :focus-within))):has(
+    &[titlepreface*="\2064"]:not([titlepreface*="\2063"]):has(#tabbrowser-tabs[orient="vertical"]):has(
       #navigator-toolbox:hover,
       #navigator-toolbox[movingtab],
       #navigator-toolbox toolbarbutton[open="true"],
@@ -327,6 +337,13 @@
         overflow: visible !important;
         transition-delay: 0s !important;
       }
+      &[titlepreface*="\2063"] :is(#sidebar-container, #sidebar-main) {
+        opacity: 1 !important;
+        visibility: visible !important;
+        pointer-events: auto !important;
+        transform: none !important;
+        transition-delay: 0s !important;
+      }
     }
 
     /* Ending address editing restores normal toolbar visibility before the
@@ -345,32 +362,33 @@
         opacity: 0 !important;
         transition: none !important;
       }
-    }
-
-    /* Only the native editor and its results escape the hidden ancestors. */
-    &[titlepreface*="\2064"][titlepreface*="\2061"]:has(#navigator-toolbox #urlbar:is([focused], :focus-within)) {
       &[titlepreface*="\2063"] :is(#sidebar-container, #sidebar-main) {
         opacity: 0 !important;
         visibility: hidden !important;
         pointer-events: none !important;
         transition: none !important;
       }
+    }
+
+    /* Keep both native surfaces available throughout centred editing.
+       CSS cannot reliably retain the mouse-versus-keyboard focus origin. */
+    &[titlepreface*="\2064"][titlepreface*="\2061"]:has(#navigator-toolbox #urlbar:is([focused], :focus-within)) {
       #navigator-toolbox {
         transform: none !important;
         translate: none !important;
         opacity: 1 !important;
-        visibility: hidden !important;
-        pointer-events: none !important;
+        visibility: visible !important;
+        pointer-events: auto !important;
         overflow: visible !important;
-        background: transparent !important;
-        box-shadow: none !important;
         transition: none !important;
         z-index: 1000 !important;
       }
-      #navigator-toolbox::before,
-      :is(#sidebar-container, #sidebar-main)::before { pointer-events: none !important; }
-      #navigator-toolbox :is(#TabsToolbar, #nav-bar, #PersonalToolbar, #urlbar-container) {
-        visibility: hidden !important;
+      &[titlepreface*="\2063"] :is(#sidebar-container, #sidebar-main) {
+        opacity: 1 !important;
+        visibility: visible !important;
+        pointer-events: auto !important;
+        transform: none !important;
+        transition-delay: 0s !important;
       }
       #nav-bar,
       #urlbar-container {

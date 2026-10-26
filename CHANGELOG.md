@@ -2,6 +2,13 @@
 
 This records saved Compact Comfort source snapshots recovered into Git history. Entries describe source changes, not independently verified live browser behavior.
 
+## 0.4.9
+
+- Remove the outer page border, corner radius, outline, and shadow in compact mode while preserving split-view pane separators.
+- Keep the Both-mode toolbar and sidebar visible and usable throughout centred editing, including when focus begins with a mouse click.
+- Keep the stylesheet-only architecture and Firefox's native Escape/focus behavior.
+- Validate these interactions in the real Firefox 158.0.1 interface in a separate profile and bump the stylesheet marker.
+
 ## 0.4.8
 
 - Preserve Firefox's native theme gradient on floating chrome surfaces, including the sidebar in Tab-only mode.
