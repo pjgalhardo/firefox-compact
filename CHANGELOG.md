@@ -2,6 +2,12 @@
 
 This records saved Compact Comfort source snapshots recovered into Git history. Entries describe source changes, not independently verified live browser behavior.
 
+## 0.4.7
+
+- Stop ordinary sidebar mouse focus and broad `open` state selectors from revealing the top overlay during page navigation. Keep hover, keyboard navigation, menus, and tab dragging as reveal triggers.
+- Add a top-edge reveal target for URL-only mode with vertical tabs. Its toolbar floats beside the visible sidebar without resizing the page, including when the sidebar is on the right.
+- Preserve native Ctrl+L access and bump the stylesheet setup marker.
+
 ## 0.4.6
 
 - Keep the concealed toolbar visible to keyboard focus while opacity hides it. This lets native Ctrl+L focus the address input before the centred-editor rules activate.

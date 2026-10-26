@@ -22,7 +22,7 @@
    Only matches the extension's own pages, never websites. */
 @-moz-document url-prefix("moz-extension://") {
   #compact-mode-probe {
-    --compact-mode-css: comfort-v8;
+    --compact-mode-css: comfort-v9;
   }
 }
 
@@ -74,7 +74,7 @@
        (pushing the page down) while you hover the visible row ---------- */
 
     &[titlepreface*="\2063"]:not([titlepreface*="\2064"]) #TabsToolbar,
-    &[titlepreface*="\2064"]:not([titlepreface*="\2063"]) :is(#nav-bar, #PersonalToolbar) {
+    &[titlepreface*="\2064"]:not([titlepreface*="\2063"]):not(:has(#tabbrowser-tabs[orient="vertical"])) :is(#nav-bar, #PersonalToolbar) {
       min-height: 0 !important;
       max-height: 0 !important;
       opacity: 0 !important;
@@ -85,11 +85,10 @@
       transition-delay: var(--compact-mode-hide-delay) !important;
     }
 
-    /* Revealed while the pointer is over the toolbars, while something in
-       them has focus (e.g. the URL bar after Ctrl+L / Ctrl+T), while a
-       menu or the URL bar dropdown is open, and while a tab is dragged. */
-    &[titlepreface*="\2063"]:not([titlepreface*="\2064"]) #navigator-toolbox:is(:hover, :focus-within, [movingtab], :has(#urlbar[open], [open="true"])) #TabsToolbar,
-    &[titlepreface*="\2064"]:not([titlepreface*="\2063"]) #navigator-toolbox:is(:hover, :focus-within, [movingtab], :has(#urlbar[open], [open="true"])) :is(#nav-bar, #PersonalToolbar) {
+    /* Pointer interaction, keyboard navigation, menus, and dragging reveal
+       chrome. Ordinary mouse focus left behind during navigation does not. */
+    &[titlepreface*="\2063"]:not([titlepreface*="\2064"]) #navigator-toolbox:is(:hover, [movingtab], :has(toolbarbutton[open="true"], :focus-visible:not(#urlbar-input))) #TabsToolbar,
+    &[titlepreface*="\2064"]:not([titlepreface*="\2063"]):not(:has(#tabbrowser-tabs[orient="vertical"])) #navigator-toolbox:is(:hover, [movingtab], :has(toolbarbutton[open="true"], :focus-visible:not(#urlbar-input))) :is(#nav-bar, #PersonalToolbar) {
       max-height: 100px !important;
       opacity: 1 !important;
       overflow: visible !important;
@@ -121,7 +120,7 @@
       transition-delay: var(--compact-mode-hide-delay) !important;
     }
 
-    &[titlepreface*="\2063"][titlepreface*="\2064"] #navigator-toolbox:is(:hover, :focus-within, [movingtab], :has(#urlbar[open], [open="true"])) {
+    &[titlepreface*="\2063"][titlepreface*="\2064"]:not(:has(#tabbrowser-tabs[orient="vertical"])) #navigator-toolbox:is(:hover, [movingtab], :has(toolbarbutton[open="true"], :focus-visible:not(#urlbar-input))) {
       transform: none !important;
       opacity: 1 !important;
       transition-delay: 0s !important;
@@ -158,7 +157,7 @@
         transform: translateX(calc(100% - var(--compact-mode-hot-zone))) !important;
       }
 
-      :is(#sidebar-container, #sidebar-main):is(:hover, :focus-within, :has([movingtab], [open="true"])) {
+      :is(#sidebar-container, #sidebar-main):is(:hover, :has(:focus-visible, [movingtab], toolbarbutton[open="true"])) {
         transform: none !important;
         opacity: 1 !important;
         transition-delay: 0s !important;
@@ -243,9 +242,9 @@
       #navigator-toolbox[movingtab],
       #navigator-toolbox toolbarbutton[open="true"],
       :is(#sidebar-container, #sidebar-main):hover,
-      :is(#sidebar-container, #sidebar-main):focus-within,
+      :is(#sidebar-container, #sidebar-main) :focus-visible,
       :is(#sidebar-container, #sidebar-main) [movingtab],
-      :is(#sidebar-container, #sidebar-main) [open="true"]
+      :is(#sidebar-container, #sidebar-main) toolbarbutton[open="true"]
     ) {
       #navigator-toolbox,
       :is(#sidebar-container, #sidebar-main) {
@@ -256,6 +255,72 @@
       }
       #navigator-toolbox::before,
       :is(#sidebar-container, #sidebar-main)::before { pointer-events: none !important; }
+    }
+
+    /* URL-only mode with vertical tabs has no horizontal tab row to hover.
+       Keep a top-edge target and float the toolbar beside the visible sidebar. */
+    &[titlepreface*="\2064"]:not([titlepreface*="\2063"]):has(#tabbrowser-tabs[orient="vertical"]) {
+      :is(#sidebar-container, #sidebar-main) {
+        anchor-name: --compact-comfort-visible-sidebar !important;
+      }
+      #navigator-toolbox {
+        position: fixed !important;
+        inset-block: 0 auto !important;
+        inset-inline: anchor(--compact-comfort-visible-sidebar right, 0px) 0 !important;
+        transform: none !important;
+        translate: none !important;
+        z-index: 10 !important;
+        visibility: visible !important;
+        opacity: 0 !important;
+        pointer-events: none !important;
+        background-color: Canvas !important;
+        background-image: linear-gradient(var(--toolbox-background-color, transparent), var(--toolbox-background-color, transparent)) !important;
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25) !important;
+        transition: opacity var(--compact-mode-duration) ease var(--compact-mode-hide-delay) !important;
+      }
+      #navigator-toolbox::before {
+        content: "";
+        position: fixed;
+        inset-block: 0 auto;
+        inset-inline: anchor(--compact-comfort-visible-sidebar right, 0px) 0;
+        height: var(--compact-mode-hot-zone);
+        visibility: visible;
+        pointer-events: auto;
+        z-index: 1002;
+      }
+      &:has(:is(#sidebar-container, #sidebar-main)[sidebar-positionend]) {
+        #navigator-toolbox,
+        #navigator-toolbox::before {
+          inset-inline: 0 anchor(--compact-comfort-visible-sidebar left, 0px) !important;
+        }
+      }
+    }
+
+    &[titlepreface*="\2064"]:not([titlepreface*="\2063"]):has(#tabbrowser-tabs[orient="vertical"]):not([titlepreface*="\2061"]:has(#urlbar:is([focused], :focus-within))):has(
+      #navigator-toolbox:hover,
+      #navigator-toolbox[movingtab],
+      #navigator-toolbox toolbarbutton[open="true"],
+      #navigator-toolbox :focus-visible:not(#urlbar-input)
+    ) #navigator-toolbox {
+      opacity: 1 !important;
+      pointer-events: auto !important;
+      transition-delay: 0s !important;
+    }
+
+    /* With the centred editor disabled, native address focus reveals its row. */
+    &[titlepreface*="\2064"]:not([titlepreface*="\2061"]):has(#urlbar:is([focused], :focus-within)) {
+      #navigator-toolbox {
+        opacity: 1 !important;
+        transform: none !important;
+        pointer-events: auto !important;
+        transition-delay: 0s !important;
+      }
+      :is(#nav-bar, #PersonalToolbar) {
+        max-height: none !important;
+        opacity: 1 !important;
+        overflow: visible !important;
+        transition-delay: 0s !important;
+      }
     }
 
     /* Only the native editor and its results escape the hidden ancestors. */
