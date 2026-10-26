@@ -22,7 +22,7 @@
    Only matches the extension's own pages, never websites. */
 @-moz-document url-prefix("moz-extension://") {
   #compact-mode-probe {
-    --compact-mode-css: comfort-v9;
+    --compact-mode-css: comfort-v10;
   }
 }
 
@@ -106,10 +106,12 @@
          theme would leave the toolbars unreadable. Canvas sits under the
          theme's own toolbar color, so opaque themes look unchanged. */
       background-color: Canvas !important;
-      background-image: linear-gradient(
+      background-image: var(--toolbox-background-gradient, none), linear-gradient(
         var(--toolbox-background-color, transparent),
         var(--toolbox-background-color, transparent)
       ) !important;
+      background-size: 100vw 100vh, auto !important;
+      background-attachment: fixed, scroll !important;
       box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25) !important;
       /* Parked above the window, except for the hot zone at the top edge */
       transform: translateY(calc(-100% + var(--compact-mode-hot-zone))) !important;
@@ -137,10 +139,12 @@
         inset-inline-start: 0 !important;
         z-index: 10 !important;
         background-color: Canvas !important;
-        background-image: linear-gradient(
+        background-image: var(--toolbox-background-gradient, none), linear-gradient(
           var(--toolbox-background-color, transparent),
           var(--toolbox-background-color, transparent)
         ) !important;
+        background-size: 100vw 100vh, auto !important;
+        background-attachment: fixed, scroll !important;
         box-shadow: 0 0 16px rgba(0, 0, 0, 0.25) !important;
         transform: translateX(calc(-100% + var(--compact-mode-hot-zone))) !important;
         opacity: 0 !important;
@@ -274,7 +278,9 @@
         opacity: 0 !important;
         pointer-events: none !important;
         background-color: Canvas !important;
-        background-image: linear-gradient(var(--toolbox-background-color, transparent), var(--toolbox-background-color, transparent)) !important;
+        background-image: var(--toolbox-background-gradient, none), linear-gradient(var(--toolbox-background-color, transparent), var(--toolbox-background-color, transparent)) !important;
+        background-size: 100vw 100vh, auto !important;
+        background-attachment: fixed, scroll !important;
         box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25) !important;
         transition: opacity var(--compact-mode-duration) ease var(--compact-mode-hide-delay) !important;
       }
@@ -320,6 +326,24 @@
         opacity: 1 !important;
         overflow: visible !important;
         transition-delay: 0s !important;
+      }
+    }
+
+    /* Ending address editing restores normal toolbar visibility before the
+       delayed opacity transition ends. During navigation, skip that delay
+       unless the user is intentionally interacting with browser controls. */
+    &[titlepreface*="\2064"]:has(#tabbrowser-tabs .tabbrowser-tab[selected][busy]):not(:has(#urlbar:is([focused], :focus-within))):not(:has(
+      #navigator-toolbox:hover,
+      #navigator-toolbox[movingtab],
+      #navigator-toolbox toolbarbutton[open="true"],
+      :is(#sidebar-container, #sidebar-main):hover,
+      :is(#sidebar-container, #sidebar-main) [movingtab],
+      :is(#sidebar-container, #sidebar-main) toolbarbutton[open="true"]
+    )) {
+      #navigator-toolbox,
+      #urlbar {
+        opacity: 0 !important;
+        transition: none !important;
       }
     }
 

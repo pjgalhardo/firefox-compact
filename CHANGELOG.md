@@ -2,6 +2,12 @@
 
 This records saved Compact Comfort source snapshots recovered into Git history. Entries describe source changes, not independently verified live browser behavior.
 
+## 0.4.8
+
+- Preserve Firefox's native theme gradient on floating chrome surfaces, including the sidebar in Tab-only mode.
+- Skip the toolbar hide delay while the selected page is loading and no browser controls are being used. This prevents the normal top bar flashing after the centred editor closes on address submission.
+- Validate the address-submission transition against the real Firefox 158.0.1 browser interface in an isolated profile and bump the stylesheet marker.
+
 ## 0.4.7
 
 - Stop ordinary sidebar mouse focus and broad `open` state selectors from revealing the top overlay during page navigation. Keep hover, keyboard navigation, menus, and tab dragging as reveal triggers.
