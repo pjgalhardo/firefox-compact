@@ -1,11 +1,14 @@
-const INSTALL_COMMAND =
-  "irm https://raw.githubusercontent.com/rs4t/firefox-compact/main/install.ps1 | iex";
-
-const DEFAULTS = { enabled: false, mode: "both" };
+const DEFAULTS = {
+  enabled: false,
+  mode: "both",
+  hoverSize: "comfortable",
+  hideDelay: "normal",
+  centeredUrlbarV2: false,
+};
 const $ = (id) => document.getElementById(id);
 
 function isCssInstalled() {
-  return getComputedStyle($("compact-mode-probe")).getPropertyValue("--compact-mode-css").trim() !== "";
+  return getComputedStyle($("compact-mode-probe")).getPropertyValue("--compact-mode-css").trim() === "comfort-v3";
 }
 
 async function copy(button, text) {
@@ -43,12 +46,25 @@ async function init() {
     });
   }
 
+  $("hover-size").value = state.hoverSize;
+  $("hover-size").addEventListener("change", (event) => {
+    browser.storage.local.set({ hoverSize: event.target.value });
+  });
+
+  $("hide-delay").value = state.hideDelay;
+  $("hide-delay").addEventListener("change", (event) => {
+    browser.storage.local.set({ hideDelay: event.target.value });
+  });
+
+  $("centered-urlbar").checked = state.centeredUrlbarV2;
+  $("centered-urlbar").addEventListener("change", (event) => {
+    browser.storage.local.set({ centeredUrlbarV2: event.target.checked });
+  });
+
   showShortcut();
 
   if (!isCssInstalled()) {
     $("setup").hidden = false;
-    $("command").textContent = INSTALL_COMMAND;
-    $("copy-command").addEventListener("click", (e) => copy(e.target, INSTALL_COMMAND));
     $("copy-css").addEventListener("click", async (e) => {
       const css = await (await fetch(browser.runtime.getURL("compact.css"))).text();
       copy(e.target, css);
@@ -57,3 +73,4 @@ async function init() {
 }
 
 init();
+

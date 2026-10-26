@@ -1,5 +1,6 @@
 /* ===================================================================
-   COMPACT MODE FOR FIREFOX
+   COMPACT COMFORT — based on Firefox Compact by rs4t (MIT).
+   Local fork: larger hover targets and delayed hiding, with three presets.
    Hides the tab bar, the URL bar, or both, and brings them back when you
    hover the top of the window. Works with any theme: it only hides and
    reveals toolbars, it never changes their colors.
@@ -21,17 +22,42 @@
    Only matches the extension's own pages, never websites. */
 @-moz-document url-prefix("moz-extension://") {
   #compact-mode-probe {
-    --compact-mode-css: v1;
+    --compact-mode-css: comfort-v4;
   }
 }
 
 /* Everything below only applies to the main browser window. */
 @-moz-document url("chrome://browser/content/browser.xhtml") {
   :root {
-    --compact-mode-duration: 0.2s;
+    --compact-mode-duration: 0.18s;
+    --compact-mode-hide-delay: 650ms;
+    --compact-mode-editor-width: min(640px, calc(100vw - 48px));
+    --compact-mode-editor-top: clamp(96px, 22vh, 190px);
     /* Height of the invisible strip at the top edge that reveals the
        toolbars when everything is hidden. */
-    --compact-mode-hot-zone: 4px;
+    --compact-mode-hot-zone: 16px;
+  }
+
+  /* U+200B = smaller targets; U+200C = larger targets. The extension
+     adds these markers alongside the existing hide-mode markers. */
+  :root[titlepreface*="\200B"] {
+    --compact-mode-hot-zone: 8px;
+    --compact-mode-hide-delay: 350ms;
+  }
+
+  :root[titlepreface*="\200C"] {
+    --compact-mode-hot-zone: 24px;
+    --compact-mode-hide-delay: 850ms;
+  }
+
+  /* U+200E and U+200F select the user-configured hiding delay. The
+     unmarked default preserves the original 650 ms comfortable delay. */
+  :root[titlepreface*="\200E"] {
+    --compact-mode-hide-delay: 250ms;
+  }
+
+  :root[titlepreface*="\200F"] {
+    --compact-mode-hide-delay: 1000ms;
   }
 
   @media (prefers-reduced-motion: reduce) {
@@ -56,6 +82,7 @@
       transition:
         max-height var(--compact-mode-duration) ease,
         opacity var(--compact-mode-duration) ease !important;
+      transition-delay: var(--compact-mode-hide-delay) !important;
     }
 
     /* Revealed while the pointer is over the toolbars, while something in
@@ -66,6 +93,7 @@
       max-height: 100px !important;
       opacity: 1 !important;
       overflow: visible !important;
+      transition-delay: 0s !important;
     }
 
     /* ---------- Both rows hidden: the whole toolbar area floats over the
@@ -90,11 +118,13 @@
       transition:
         transform var(--compact-mode-duration) ease,
         opacity var(--compact-mode-duration) ease !important;
+      transition-delay: var(--compact-mode-hide-delay) !important;
     }
 
     &[titlepreface*="\2063"][titlepreface*="\2064"] #navigator-toolbox:is(:hover, :focus-within, [movingtab], :has(#urlbar[open], [open="true"])) {
       transform: none !important;
       opacity: 1 !important;
+      transition-delay: 0s !important;
     }
 
     /* ---------- Vertical tabs: hiding the tabs hides the tab sidebar.
@@ -118,6 +148,7 @@
         transition:
           transform var(--compact-mode-duration) ease,
           opacity var(--compact-mode-duration) ease !important;
+        transition-delay: var(--compact-mode-hide-delay) !important;
       }
 
       /* Sidebar set to the right side of the window */
@@ -130,6 +161,7 @@
       #sidebar-container:is(:hover, :focus-within, :has([movingtab], [open="true"])) {
         transform: none !important;
         opacity: 1 !important;
+        transition-delay: 0s !important;
       }
 
       /* The resize handle would be left behind at the edge of the page */
@@ -137,5 +169,131 @@
         display: none !important;
       }
     }
+
+    /* Both mode treats the top bar and vertical tab sidebar as one
+       interface. A pointer, keyboard focus, open menu or tab drag in
+       either keeps both visible. Keep these :has() clauses separate:
+       nesting :has() inside another :has() is invalid CSS. */
+    &[titlepreface*="\2063"][titlepreface*="\2064"]:has(#tabbrowser-tabs[orient="vertical"]):has(
+      #navigator-toolbox:hover,
+      #navigator-toolbox:focus-within,
+      #navigator-toolbox[movingtab],
+      #navigator-toolbox #urlbar[open],
+      #navigator-toolbox [open="true"],
+      #sidebar-container:hover,
+      #sidebar-container:focus-within,
+      #sidebar-container[movingtab],
+      #sidebar-container [movingtab],
+      #sidebar-container [open="true"]
+    ) :is(#navigator-toolbox, #sidebar-container) {
+      transform: none !important;
+      opacity: 1 !important;
+      transition-delay: 0s !important;
+    }
+
+    /* U+2061 opts into the centred native address editor. No replacement
+       input or history reader is injected; Firefox still handles editing,
+       suggestions, keyboard navigation and Enter/Escape itself.
+
+       The toolbox must lose its transform AND opacity while editing:
+       transforms create containing blocks for fixed descendants, and
+       ancestor opacity would also hide the floating input. Keep the
+       toolbox itself pointer-active: it is also the top-edge hover target,
+       including while the editor has focus. */
+    &[titlepreface*="\2064"][titlepreface*="\2061"]:has(#navigator-toolbox #urlbar[focused]) {
+      #navigator-toolbox {
+        transform: none !important;
+        opacity: 1 !important;
+        overflow: visible !important;
+        transition: none !important;
+        z-index: 1000 !important;
+      }
+
+      /* Focusing the editor must not count as opening the full toolbar.
+         Hovering the top edge remains the deliberate way to open it. */
+      #navigator-toolbox:not(:hover) {
+        background: transparent !important;
+        box-shadow: none !important;
+      }
+
+      #navigator-toolbox:not(:hover) #TabsToolbar,
+      #navigator-toolbox:not(:hover) #nav-bar > :not(#urlbar-container) {
+        visibility: hidden !important;
+      }
+
+      /* A collapsed nav row must not clip its fixed-position editor in
+         URL-bar-only mode. The toolbar and tab sidebar retain their normal
+         hover behaviour while editing. */
+      #nav-bar,
+      #urlbar-container {
+        overflow: visible !important;
+        contain: none !important;
+        transform: none !important;
+        opacity: 1 !important;
+      }
+
+      #urlbar[focused] {
+        display: flex !important;
+        flex-direction: column !important;
+        position: fixed !important;
+        inset: auto !important;
+        top: var(--compact-mode-editor-top) !important;
+        left: 50% !important;
+        right: auto !important;
+        bottom: auto !important;
+        margin: 0 !important;
+        width: var(--compact-mode-editor-width) !important;
+        min-width: 0 !important;
+        max-width: calc(100vw - 48px) !important;
+        min-height: 48px !important;
+        height: auto !important;
+        box-sizing: border-box !important;
+        transform: translateX(-50%) !important;
+        visibility: visible !important;
+        pointer-events: auto !important;
+        opacity: 1 !important;
+        overflow: visible !important;
+        z-index: 1001 !important;
+        transition: none !important;
+        --urlbar-height: 48px !important;
+        --urlbar-background-overhang-open: 0px !important;
+        --urlbar-input-growth-open-inline: 0px !important;
+        --urlbar-input-growth-open-block: 0px !important;
+        --urlbar-background-border-radius: 14px !important;
+      }
+
+      /* Firefox 158 anchors the native view to a nested input-container.
+         Moving only the outer URL bar leaves that anchor at its pre-move
+         location on some theme/layout combinations. Pin the open view to
+         the same centered geometry instead. */
+      #urlbar[focused] .urlbarView {
+        visibility: visible !important;
+        pointer-events: auto !important;
+        max-height: calc(100vh - var(--compact-mode-editor-top) - 72px) !important;
+        overflow-y: auto !important;
+        overscroll-behavior: contain !important;
+      }
+
+      #urlbar[focused] .urlbarView:popover-open {
+        position: fixed !important;
+        position-anchor: none !important;
+        position-area: none !important;
+        inset: auto !important;
+        top: calc(var(--compact-mode-editor-top) + 54px) !important;
+        left: 50% !important;
+        width: var(--compact-mode-editor-width) !important;
+        max-width: calc(100vw - 48px) !important;
+        box-sizing: border-box !important;
+        transform: translateX(-50%) !important;
+      }
+
+      @media (max-width: 420px) {
+        #urlbar[focused] {
+          width: calc(100vw - 24px) !important;
+          max-width: calc(100vw - 24px) !important;
+        }
+      }
+    }
   }
 }
+

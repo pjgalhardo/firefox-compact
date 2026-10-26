@@ -6,14 +6,29 @@ const MARKERS = {
   both: "⁣⁤",
 };
 
-const DEFAULTS = { enabled: false, mode: "both" };
+const DEFAULTS = {
+  enabled: false,
+  mode: "both",
+  hoverSize: "comfortable",
+  hideDelay: "normal",
+  // New key deliberately leaves the earlier experimental editor off after
+  // updating. Firefox 158's suggestion popover did not track it reliably.
+  centeredUrlbarV2: false,
+};
+const HOVER_MARKERS = { smaller: "\u200B", comfortable: "", larger: "\u200C" };
+const DELAY_MARKERS = { quick: "\u200E", normal: "", slow: "\u200F" };
 
 async function getState() {
   return browser.storage.local.get(DEFAULTS);
 }
 
 function prefaceFor(state) {
-  return state.enabled ? (MARKERS[state.mode] ?? MARKERS.both) : "";
+  return state.enabled
+    ? (MARKERS[state.mode] ?? MARKERS.both) +
+      (HOVER_MARKERS[state.hoverSize] ?? "") +
+      (DELAY_MARKERS[state.hideDelay] ?? "") +
+      (state.centeredUrlbarV2 ? "\u2061" : "")
+    : "";
 }
 
 async function applyToWindow(windowId, preface) {
@@ -39,7 +54,7 @@ function isCssInstalled() {
   document.documentElement.append(probe);
   const value = getComputedStyle(probe).getPropertyValue("--compact-mode-css").trim();
   probe.remove();
-  return value !== "";
+  return value === "comfort-v3";
 }
 
 function updateSetupBadge() {
@@ -47,9 +62,9 @@ function updateSetupBadge() {
   browser.action.setBadgeText({ text: missing ? "!" : "" });
   if (missing) {
     browser.action.setBadgeBackgroundColor({ color: "#d70022" });
-    browser.action.setTitle({ title: "Compact Mode - setup needed, click for steps" });
+    browser.action.setTitle({ title: "Compact Comfort — updated stylesheet not loaded" });
   } else {
-    browser.action.setTitle({ title: "Compact Mode" });
+    browser.action.setTitle({ title: "Compact Comfort" });
   }
 }
 
@@ -67,7 +82,7 @@ browser.commands.onCommand.addListener(async (command) => {
 });
 
 browser.storage.onChanged.addListener((changes, area) => {
-  if (area === "local" && ("enabled" in changes || "mode" in changes)) {
+  if (area === "local" && ("enabled" in changes || "mode" in changes || "hoverSize" in changes || "hideDelay" in changes || "centeredUrlbarV2" in changes)) {
     applyToAllWindows();
   }
 });
@@ -81,3 +96,4 @@ function init() {
 
 browser.runtime.onStartup.addListener(init);
 browser.runtime.onInstalled.addListener(init);
+

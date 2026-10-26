@@ -9,7 +9,7 @@
   <div id="compact-mode-probe" hidden></div>
 
   <header>
-    <h1>Compact Mode</h1>
+    <h1>Compact Comfort</h1>
     <label class="switch" title="Turn compact mode on or off">
       <input type="checkbox" id="enabled">
       <span class="track"></span>
@@ -23,22 +23,38 @@
     <label><input type="radio" name="mode" value="both"><span>Both</span></label>
   </fieldset>
 
+  <label class="hover-setting" for="hover-size">Hover area</label>
+  <select id="hover-size">
+    <option value="smaller">Smaller · 8 px</option>
+    <option value="comfortable">Comfortable · 16 px</option>
+    <option value="larger">Larger · 24 px</option>
+  </select>
+
+  <label class="hover-setting" for="hide-delay">Hide delay</label>
+  <select id="hide-delay">
+    <option value="quick">Quick · 0.25 seconds</option>
+    <option value="normal">Normal · 0.65 seconds</option>
+    <option value="slow">Slow · 1 second</option>
+  </select>
+
+  <label class="editor-setting">
+    <input type="checkbox" id="centered-urlbar">
+    <span>Centred address editor <small>Beta · Command + L</small></span>
+  </label>
+
   <p class="hint">
-    Hover the top of the window to bring them back.<br>
-    Shortcut: <kbd id="shortcut">Ctrl+Alt+C</kbd>
+    In Both mode, hovering either edge reveals the top bar and sidebar together. Command + L opens the address editor.<br>
+    Shortcut: <kbd id="shortcut">Control + Option + C</kbd>
     <button id="change-shortcut" class="link" hidden>Change</button>
   </p>
 
   <section id="setup" hidden>
-    <h2>One-time setup needed</h2>
+    <h2>Updated stylesheet not loaded</h2>
     <p>
-      Firefox only allows hiding its toolbars through a small CSS file.
-      Run this in PowerShell, then fully restart Firefox:
+      Compact Comfort needs its updated compact.css in this profile.
+      After replacing it, fully quit this Firefox profile with Command + Q,
+      reopen it, and load this add-on again if it is temporary.
     </p>
-    <div class="command">
-      <code id="command"></code>
-      <button id="copy-command">Copy</button>
-    </div>
     <details>
       <summary>Mac, Linux, or manual setup</summary>
       <ol>
@@ -52,6 +68,9 @@
     </details>
   </section>
 
+  <p class="credit">Based on Firefox Compact by rs4t · MIT licence</p>
+
   <script src="popup.js"></script>
 </body>
 </html>
+

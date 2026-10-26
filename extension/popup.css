@@ -16,6 +16,39 @@ body {
   color: CanvasText;
 }
 
+.hover-setting {
+  display: block;
+  margin-top: 12px;
+  margin-bottom: 5px;
+}
+
+#hover-size {
+  box-sizing: border-box;
+  width: 100%;
+  padding: 7px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--surface);
+  color: CanvasText;
+  font: inherit;
+}
+
+.credit {
+  margin: 12px 0 0;
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.editor-setting {
+  display: flex;
+  align-items: flex-start;
+  gap: 7px;
+  margin-top: 12px;
+}
+
+.editor-setting input { margin: 2px 0 0; }
+.editor-setting small { display: block; color: var(--muted); margin-top: 3px; }
+
 header {
   display: flex;
   align-items: center;
@@ -205,3 +238,4 @@ ol code {
   font-size: 11px;
   word-break: break-all;
 }
+
