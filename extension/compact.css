@@ -191,6 +191,29 @@
       transition-delay: 0s !important;
     }
 
+    &[titlepreface*="\2063"][titlepreface*="\2064"]:has(#tabbrowser-tabs[orient="vertical"]):has(
+      #navigator-toolbox:hover,
+      #navigator-toolbox:focus-within,
+      #navigator-toolbox[movingtab],
+      #navigator-toolbox #urlbar[open],
+      #navigator-toolbox [open="true"],
+      #sidebar-container:hover,
+      #sidebar-container:focus-within,
+      #sidebar-container[movingtab],
+      #sidebar-container [movingtab],
+      #sidebar-container [open="true"]
+    ):not([titlepreface*="\2061"]:has(#navigator-toolbox:not(:hover) #urlbar[focused])) {
+      /* Use Firefox's native layout for the revealed pair. The browser
+         area begins below the toolbox and reserves the sidebar's width,
+         so neither surface can cover the other's buttons. */
+      #navigator-toolbox,
+      #sidebar-container {
+        position: relative !important;
+        inset: auto !important;
+        box-shadow: none !important;
+      }
+    }
+
     /* U+2061 opts into the centred native address editor. No replacement
        input or history reader is injected; Firefox still handles editing,
        suggestions, keyboard navigation and Enter/Escape itself.
