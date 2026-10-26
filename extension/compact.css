@@ -22,7 +22,7 @@
    Only matches the extension's own pages, never websites. */
 @-moz-document url-prefix("moz-extension://") {
   #compact-mode-probe {
-    --compact-mode-css: comfort-v4;
+    --compact-mode-css: comfort-v5;
   }
 }
 
@@ -31,8 +31,8 @@
   :root {
     --compact-mode-duration: 0.18s;
     --compact-mode-hide-delay: 650ms;
-    --compact-mode-editor-width: min(640px, calc(100vw - 48px));
-    --compact-mode-editor-top: clamp(96px, 22vh, 190px);
+    --compact-mode-editor-width: min(600px, calc(100vw - 32px));
+    --compact-mode-editor-top: clamp(64px, 16vh, 140px);
     /* Height of the invisible strip at the top edge that reveals the
        toolbars when everything is hidden. */
     --compact-mode-hot-zone: 16px;
@@ -170,83 +170,107 @@
       }
     }
 
-    /* Both mode treats the top bar and vertical tab sidebar as one
-       interface. A pointer, keyboard focus, open menu or tab drag in
-       either keeps both visible. Keep these :has() clauses separate:
-       nesting :has() inside another :has() is invalid CSS. */
-    &[titlepreface*="\2063"][titlepreface*="\2064"]:has(#tabbrowser-tabs[orient="vertical"]):has(
-      #navigator-toolbox:hover,
-      #navigator-toolbox:focus-within,
-      #navigator-toolbox[movingtab],
-      #navigator-toolbox #urlbar[open],
-      #navigator-toolbox [open="true"],
-      #sidebar-container:hover,
-      #sidebar-container:focus-within,
-      #sidebar-container[movingtab],
-      #sidebar-container [movingtab],
-      #sidebar-container [open="true"]
-    ) :is(#navigator-toolbox, #sidebar-container) {
-      transform: none !important;
-      opacity: 1 !important;
-      transition-delay: 0s !important;
-    }
-
-    &[titlepreface*="\2063"][titlepreface*="\2064"]:has(#tabbrowser-tabs[orient="vertical"]):has(
-      #navigator-toolbox:hover,
-      #navigator-toolbox:focus-within,
-      #navigator-toolbox[movingtab],
-      #navigator-toolbox #urlbar[open],
-      #navigator-toolbox [open="true"],
-      #sidebar-container:hover,
-      #sidebar-container:focus-within,
-      #sidebar-container[movingtab],
-      #sidebar-container [movingtab],
-      #sidebar-container [open="true"]
-    ):not([titlepreface*="\2061"]:has(#navigator-toolbox:not(:hover) #urlbar[focused])) {
-      /* Use Firefox's native layout for the revealed pair. The browser
-         area begins below the toolbox and reserves the sidebar's width,
-         so neither surface can cover the other's buttons. */
+    /* Preserve native slots until the entire pair finishes fading out. */
+    &[titlepreface*="\2063"][titlepreface*="\2064"]:has(#tabbrowser-tabs[orient="vertical"]) {
       #navigator-toolbox,
       #sidebar-container {
         position: relative !important;
         inset: auto !important;
+        transform: none !important;
+        translate: none !important;
+        opacity: 0 !important;
+        visibility: hidden !important;
+        pointer-events: none !important;
         box-shadow: none !important;
+        min-height: 0 !important;
+        transition:
+          opacity var(--compact-mode-duration) ease var(--compact-mode-hide-delay),
+          visibility 0s linear calc(var(--compact-mode-hide-delay) + var(--compact-mode-duration)),
+          max-height 0s linear calc(var(--compact-mode-hide-delay) + var(--compact-mode-duration)),
+          max-width 0s linear calc(var(--compact-mode-hide-delay) + var(--compact-mode-duration)) !important;
+      }
+      #navigator-toolbox {
+        max-height: 0 !important;
+        border-block-width: 0 !important;
+      }
+      #sidebar-container {
+        min-width: 0 !important;
+        max-width: 0 !important;
+        margin-inline: 0 !important;
+      }
+      /* These targets remain hit-testable while the real bars are hidden. */
+      #navigator-toolbox::before,
+      #sidebar-container::before {
+        content: "";
+        position: fixed;
+        visibility: visible;
+        pointer-events: auto;
+        z-index: 1002;
+        background: transparent;
+      }
+      #navigator-toolbox::before {
+        inset: 0 0 auto 0;
+        height: var(--compact-mode-hot-zone);
+      }
+      #sidebar-container::before {
+        inset-block: var(--compact-mode-hot-zone) 0;
+        inset-inline: 0 auto;
+        width: var(--compact-mode-hot-zone);
+      }
+      #sidebar-container[sidebar-positionend]::before {
+        inset-inline: auto 0;
       }
     }
 
-    /* U+2061 opts into the centred native address editor. No replacement
-       input or history reader is injected; Firefox still handles editing,
-       suggestions, keyboard navigation and Enter/Escape itself.
+    /* Address focus is deliberately absent from the shared reveal rule. */
+    &[titlepreface*="\2063"][titlepreface*="\2064"]:has(#tabbrowser-tabs[orient="vertical"]):not([titlepreface*="\2061"]:has(#urlbar[focused])):has(
+      #navigator-toolbox:hover,
+      #navigator-toolbox[movingtab],
+      #navigator-toolbox toolbarbutton[open="true"],
+      #sidebar-container:hover,
+      #sidebar-container:focus-within,
+      #sidebar-container [movingtab],
+      #sidebar-container [open="true"]
+    ) {
+      #navigator-toolbox,
+      #sidebar-container {
+        opacity: 1 !important;
+        visibility: visible !important;
+        pointer-events: auto !important;
+        transition-delay: 0s !important;
+      }
+      #navigator-toolbox { max-height: 1000px !important; }
+      #sidebar-container { max-width: 75vw !important; }
+      #navigator-toolbox::before,
+      #sidebar-container::before { pointer-events: none !important; }
+    }
 
-       The toolbox must lose its transform AND opacity while editing:
-       transforms create containing blocks for fixed descendants, and
-       ancestor opacity would also hide the floating input. Keep the
-       toolbox itself pointer-active: it is also the top-edge hover target,
-       including while the editor has focus. */
+    /* Only the native editor and its results escape the hidden ancestors. */
     &[titlepreface*="\2064"][titlepreface*="\2061"]:has(#navigator-toolbox #urlbar[focused]) {
+      &[titlepreface*="\2063"] #sidebar-container {
+        opacity: 0 !important;
+        visibility: hidden !important;
+        pointer-events: none !important;
+        max-width: 0 !important;
+        transition: none !important;
+      }
       #navigator-toolbox {
         transform: none !important;
+        translate: none !important;
         opacity: 1 !important;
+        visibility: hidden !important;
+        pointer-events: none !important;
         overflow: visible !important;
+        background: transparent !important;
+        box-shadow: none !important;
         transition: none !important;
         z-index: 1000 !important;
       }
-
-      /* Focusing the editor must not count as opening the full toolbar.
-         Hovering the top edge remains the deliberate way to open it. */
-      #navigator-toolbox:not(:hover) {
-        background: transparent !important;
-        box-shadow: none !important;
-      }
-
-      #navigator-toolbox:not(:hover) #TabsToolbar,
-      #navigator-toolbox:not(:hover) #nav-bar > :not(#urlbar-container) {
+      #navigator-toolbox::before,
+      #sidebar-container::before { pointer-events: none !important; }
+      #navigator-toolbox :is(#TabsToolbar, #nav-bar, #PersonalToolbar, #urlbar-container) {
         visibility: hidden !important;
       }
-
-      /* A collapsed nav row must not clip its fixed-position editor in
-         URL-bar-only mode. The toolbar and tab sidebar retain their normal
-         hover behaviour while editing. */
       #nav-bar,
       #urlbar-container {
         overflow: visible !important;
@@ -254,69 +278,96 @@
         transform: none !important;
         opacity: 1 !important;
       }
-
       #urlbar[focused] {
+        --compact-mode-input-height: 48px;
+        --urlbar-height: var(--compact-mode-input-height) !important;
+        --urlbar-background-overhang-open: 0px !important;
+        --urlbar-input-growth-open-inline: 0px !important;
+        --urlbar-input-growth-open-block: 0px !important;
+        --urlbarView-margin-inline: 0px !important;
+        --urlbarView-margin-block: 0px !important;
+        --urlbar-background-border-radius: 12px !important;
+        --urlbar-border-radius: 12px !important;
         display: flex !important;
         flex-direction: column !important;
         position: fixed !important;
         inset: auto !important;
         top: var(--compact-mode-editor-top) !important;
         left: 50% !important;
-        right: auto !important;
-        bottom: auto !important;
         margin: 0 !important;
+        padding: 0 !important;
         width: var(--compact-mode-editor-width) !important;
         min-width: 0 !important;
-        max-width: calc(100vw - 48px) !important;
-        min-height: 48px !important;
-        height: auto !important;
+        max-width: calc(100vw - 32px) !important;
+        height: var(--compact-mode-input-height) !important;
+        min-height: var(--compact-mode-input-height) !important;
         box-sizing: border-box !important;
         transform: translateX(-50%) !important;
         visibility: visible !important;
         pointer-events: auto !important;
         opacity: 1 !important;
         overflow: visible !important;
+        color: var(--toolbar-field-text-color-focus, CanvasText) !important;
+        background: var(--toolbar-field-background-color-focus, Canvas) !important;
+        border: 1px solid var(--panel-border-color, GrayText) !important;
+        border-radius: 12px !important;
+        box-shadow: 0 8px 28px rgba(0, 0, 0, 0.18) !important;
+        outline: none !important;
         z-index: 1001 !important;
         transition: none !important;
-        --urlbar-height: 48px !important;
-        --urlbar-background-overhang-open: 0px !important;
-        --urlbar-input-growth-open-inline: 0px !important;
-        --urlbar-input-growth-open-block: 0px !important;
-        --urlbar-background-border-radius: 14px !important;
       }
-
-      /* Firefox 158 anchors the native view to a nested input-container.
-         Moving only the outer URL bar leaves that anchor at its pre-move
-         location on some theme/layout combinations. Pin the open view to
-         the same centered geometry instead. */
+      #urlbar[focused][popover-open] {
+        border-end-start-radius: 0 !important;
+        border-end-end-radius: 0 !important;
+        box-shadow: none !important;
+      }
+      #urlbar[focused] > .urlbar-input-container {
+        width: 100% !important;
+        height: 100% !important;
+        min-height: 0 !important;
+        margin: 0 !important;
+        padding: 4px 10px !important;
+        box-sizing: border-box !important;
+        border: none !important;
+        border-radius: inherit !important;
+        outline: none !important;
+        background: transparent !important;
+        visibility: visible !important;
+      }
+      #urlbar[focused] :is(.urlbar-background, .urlbarView-background),
+      #urlbar[focused] #page-action-buttons { display: none !important; }
       #urlbar[focused] .urlbarView {
         visibility: visible !important;
         pointer-events: auto !important;
-        max-height: calc(100vh - var(--compact-mode-editor-top) - 72px) !important;
+        max-height: min(55vh, calc(100vh - var(--compact-mode-editor-top) - 64px)) !important;
         overflow-y: auto !important;
         overscroll-behavior: contain !important;
+        margin: 0 !important;
+        padding: 6px !important;
+        box-sizing: border-box !important;
+        color: var(--toolbar-field-text-color-focus, CanvasText) !important;
+        background: var(--toolbar-field-background-color-focus, Canvas) !important;
+        border: 1px solid var(--panel-border-color, GrayText) !important;
+        border-top: none !important;
+        border-radius: 0 0 12px 12px !important;
+        box-shadow: 0 12px 24px rgba(0, 0, 0, 0.18) !important;
       }
-
       #urlbar[focused] .urlbarView:popover-open {
         position: fixed !important;
         position-anchor: none !important;
         position-area: none !important;
         inset: auto !important;
-        top: calc(var(--compact-mode-editor-top) + 54px) !important;
+        top: calc(var(--compact-mode-editor-top) + var(--compact-mode-input-height)) !important;
         left: 50% !important;
         width: var(--compact-mode-editor-width) !important;
-        max-width: calc(100vw - 48px) !important;
-        box-sizing: border-box !important;
+        max-width: calc(100vw - 32px) !important;
+        justify-self: auto !important;
         transform: translateX(-50%) !important;
       }
-
-      @media (max-width: 420px) {
-        #urlbar[focused] {
-          width: calc(100vw - 24px) !important;
-          max-width: calc(100vw - 24px) !important;
-        }
+      #urlbar[focused] .urlbarView-results {
+        width: 100% !important;
+        margin-inline: 0 !important;
       }
     }
   }
 }
-

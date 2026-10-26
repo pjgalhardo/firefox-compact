@@ -8,7 +8,7 @@ const DEFAULTS = {
 const $ = (id) => document.getElementById(id);
 
 function isCssInstalled() {
-  return getComputedStyle($("compact-mode-probe")).getPropertyValue("--compact-mode-css").trim() === "comfort-v4";
+  return getComputedStyle($("compact-mode-probe")).getPropertyValue("--compact-mode-css").trim() === "comfort-v5";
 }
 
 async function copy(button, text) {
