@@ -1,5 +1,5 @@
-# Compact Mode for Firefox - CSS setup
-# Usage: irm https://raw.githubusercontent.com/rs4t/firefox-compact/main/install.ps1 | iex
+# Compact Comfort for Firefox - CSS setup, derived from rs4t/firefox-compact (MIT)
+# Download and review this script before running it.
 #
 # Adds compact.css to your Firefox profile and imports it at the top of
 # userChrome.css and userContent.css. Works alongside any theme: existing
@@ -9,12 +9,12 @@ function Install-CompactModeCss {
     $ErrorActionPreference = 'Stop'
     [Net.ServicePointManager]::SecurityProtocol = [Net.ServicePointManager]::SecurityProtocol -bor [Net.SecurityProtocolType]::Tls12
 
-    $cssUrl = 'https://raw.githubusercontent.com/rs4t/firefox-compact/main/extension/compact.css'
+    $cssUrl = 'https://raw.githubusercontent.com/pjgalhardo/firefox-compact/main/extension/compact.css'
     $importLine = '@import "compact.css";'
     $utf8 = New-Object Text.UTF8Encoding $false
 
     Write-Host ''
-    Write-Host '  Compact Mode setup' -ForegroundColor Magenta
+    Write-Host '  Compact Comfort setup' -ForegroundColor Magenta
     Write-Host ''
 
     $ffDir = Join-Path $env:APPDATA 'Mozilla\Firefox'

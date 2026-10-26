@@ -1,71 +1,61 @@
-# Firefox Compact
+# Compact Comfort
 
-Zen-style compact mode for Firefox. Hide the tab bar, the URL bar, or both, and bring them back by hovering the edge of the window. Toggle it with **Ctrl+Alt+C**.
+An experimental, unsigned fork of [Firefox Compact by rs4t](https://github.com/rs4t/firefox-compact), with larger hover targets, delayed hiding, coordinated toolbar/sidebar reveal, and an optional centred native address editor.
 
-Works with any theme: it only hides and reveals the toolbars, it never changes their colors.
+Current version: **0.4.3**. The original MIT license and copyright are preserved in [LICENSE](LICENSE), the upstream history remains intact, and the original documentation is in [README-upstream.md](README-upstream.md). This is an independent fork, not the upstream author's official release.
 
-## How it works
+## Behavior
 
-Firefox doesn't let extensions hide its own toolbars, but a small CSS file can. So this comes in two parts:
+- Hide the tab bar, URL bar, or both. In Both mode with vertical tabs, hovering either edge is intended to reveal the toolbar and sidebar together as continuous overlays without resizing the page.
+- Choose 8, 16, or 24 px hover areas and quick, normal, or slow hide delays. The default hover area is 16 px with a 650 ms hide delay.
+- Optionally enable **Centred address editor** for Ctrl+L (Command+L on macOS). This uses Firefox's native field and suggestions and suppresses toolbar/sidebar reveal while editing. It is disabled by default and remains experimental.
+- Toggle compact mode with Ctrl+Alt+C on Windows/Linux or Control+Option+C on macOS. Firefox's extension shortcut settings can change this.
 
-- **The extension** remembers whether compact mode is on and which mode you picked, and gives you the shortcut and the popup.
-- **`compact.css`** does the hiding. The extension tells it what to do by adding invisible characters to the window title, which the CSS can read.
+Larger invisible hover areas cover more of the page edge. Choose Smaller if they interfere with page controls. Escape follows Firefox's native address-field behavior; click the page to leave editing if it retains focus.
 
 ## Install
 
-### 1. Set up the CSS (once)
+Firefox chrome customization and the temporary add-on are separate installation steps. Download or clone this repository first. Disable the original Compact Mode add-on before enabling this fork so their window-title markers do not compete.
 
-**Windows:** paste this into PowerShell and press Enter:
+### 1. Install the stylesheet
 
-```powershell
-irm https://raw.githubusercontent.com/rs4t/firefox-compact/main/install.ps1 | iex
-```
+1. Open `about:support` in the Firefox profile you want to customize and open its **Profile Folder**.
+2. Back up existing `compact.css`, `userChrome.css`, and `userContent.css`, if present.
+3. Create a `chrome` folder inside that profile if needed. Copy [extension/compact.css](extension/compact.css) into it.
+4. Add `@import "compact.css";` before other rules in both `userChrome.css` and `userContent.css` inside `chrome` (create the files if absent). An existing `@charset` declaration may remain before the import. Preserve your other CSS.
+5. In `about:config`, set `toolkit.legacyUserProfileCustomizations.stylesheets` to `true`.
+6. Fully exit Firefox and reopen it to load the stylesheet.
 
-It finds your Firefox profile, saves `compact.css` there, and adds one `@import` line to the top of your `userChrome.css` and `userContent.css`. Any theme files you already have are kept and backed up. You can read exactly what it does in [install.ps1](install.ps1).
+On Windows, the inherited [install.ps1](install.ps1) is an alternative installer. Review it before running it. It downloads the stylesheet from this fork, adds missing imports, and sets the customization preference through `user.js`. Back up an existing `compact.css` yourself before using it.
 
-<details>
-<summary><b>Mac, Linux, or manual setup</b></summary>
+### 2. Load the temporary add-on
 
-1. In `about:config`, set `toolkit.legacyUserProfileCustomizations.stylesheets` to `true`.
-2. Open `about:support` and click **Open Folder** next to *Profile Folder*. Make a `chrome` folder there if it's missing.
-3. Save [`compact.css`](extension/compact.css) into that `chrome` folder.
-4. Add this as the very first line of both `userChrome.css` and `userContent.css` in the same folder (create them if they don't exist):
+1. Open `about:debugging#/runtime/this-firefox`.
+2. Choose **Load Temporary Add-on** and select `extension/manifest.json` in your downloaded clone.
+3. Open Compact Comfort's popup, enable it, and select a mode. Enable the centred editor separately if desired.
 
-   ```css
-   @import "compact.css";
-   ```
+Temporary add-ons disappear after Firefox exits. Reload the add-on after every restart. This project has not been submitted for Mozilla signing; it is not a permanently installable signed release.
 
-</details>
+Both stylesheet checks require the **comfort-v5** marker bundled with 0.4.3. Updating the extension without replacing older profile CSS can leave the setup warning visible.
 
-Then fully close Firefox and open it again.
+## Permissions and privacy
 
-### 2. Install the extension (temporary, until signed)
+The manifest requests only `storage`. The extension stores settings locally and updates window-title prefixes to communicate with the stylesheet. It does not request website access, browsing history, cookies, or native messaging. The popup reads its packaged stylesheet when you use **Copy compact.css**. The separate Windows installer downloads CSS from this repository.
 
-1. Download this repo (**Code → Download ZIP**) and unzip it.
-2. In Firefox, open `about:debugging#/runtime/this-firefox` and click **Load Temporary Add-on…**.
-3. Select `extension/manifest.json`.
+## Compatibility and verification
 
-Temporary add-ons unload when Firefox restarts, so you'll need to load it again each time until it's signed for permanent install.
+The manifest declares Firefox 140 or newer. Development used Firefox 158 browser styles; that minimum version is not a claim that all versions have been visually tested. The CSS uses unsupported browser-chrome customization and CSS anchoring, so Firefox updates or themes may require changes. Fullscreen and Customize modes are excluded.
 
-If the CSS setup is missing, the extension icon shows a red **!** and the popup shows the setup command. It checks every time Firefox starts, so if you switch to a theme that replaces your CSS files, it will tell you.
+JavaScript syntax and stylesheet marker checks have passed locally. **Live hover animations, page dimensions, and centred suggestion alignment remain unverified.** The source import preserves the saved 0.4.3 runtime files rather than claiming these visual requirements are already proven.
 
-## Use
+## History
 
-- **Ctrl+Alt+C** turns compact mode on or off. You can change the shortcut in `about:addons` → ⚙ → **Manage Extension Shortcuts**.
-- Click the extension icon to pick what to hide: **Tab bar**, **URL bar**, or **Both**.
-- **Hover the top of the window** to bring the toolbars back. With *Both*, they float over the page so it doesn't jump.
-- **With vertical tabs**, hiding the tabs hides the tab sidebar. Hover the edge of the window it sits on to slide it back.
-- The toolbars also stay visible while you type in the URL bar (Ctrl+L, Ctrl+T), while a menu is open, and while you drag a tab.
+See [CHANGELOG.md](CHANGELOG.md). Saved source snapshots were imported as separate commits after the original upstream commit. These are recovery/import commits made now, not reconstructed original development timestamps. No local profile configuration, installation reports, or unrelated review files are part of this repository.
 
-## Good to know
+## Rollback
 
-- On Windows, minimize, maximize and close live in the tab bar, so when it's hidden they appear when you hover the top.
-- Other extensions that also add a window title prefix (like Sidebery's window titles) will overwrite compact mode's marker, so the two can't be used together.
-- The setup check reads the import line in `userContent.css`. If a theme replaces only `userChrome.css`, the extension can't tell.
-- Firefox's fullscreen and the Customize screen ignore compact mode.
+Disable/remove Compact Comfort, restore your backed-up CSS, and fully restart Firefox. Restore the previous stylesheet-customization preference if you no longer use any custom CSS. If you used `install.ps1`, review its addition to `user.js` as well.
 
-Made to pair with [Latin Accent Plus](https://github.com/rs4t/latin-accent-plus), but it works with any theme.
+## License and attribution
 
-## License
-
-MIT
+MIT. Original copyright: **Copyright (c) 2026 rs4t**. See [LICENSE](LICENSE). Compact Comfort retains the original attribution in its stylesheet and popup.
