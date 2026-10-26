@@ -2,6 +2,11 @@
 
 This records saved Compact Comfort source snapshots recovered into Git history. Entries describe source changes, not independently verified live browser behavior.
 
+## 0.4.5
+
+- Recognize actual URL-bar focus with `:focus-within` as well as Firefox's `focused` attribute, so Ctrl+L can activate the centred editor when the toolbar is hidden.
+- Bump the stylesheet setup marker.
+
 ## 0.4.4
 
 - Apply the coordinated fixed sidebar overlay to Firefox's newer `#sidebar-main` vertical-tab sidebar as well as the earlier `#sidebar-container` layout.

@@ -22,7 +22,7 @@
    Only matches the extension's own pages, never websites. */
 @-moz-document url-prefix("moz-extension://") {
   #compact-mode-probe {
-    --compact-mode-css: comfort-v6;
+    --compact-mode-css: comfort-v7;
   }
 }
 
@@ -234,7 +234,7 @@
     }
 
     /* Address focus is deliberately absent from the shared reveal rule. */
-    &[titlepreface*="\2063"][titlepreface*="\2064"]:has(#tabbrowser-tabs[orient="vertical"]):not([titlepreface*="\2061"]:has(#urlbar[focused])):has(
+    &[titlepreface*="\2063"][titlepreface*="\2064"]:has(#tabbrowser-tabs[orient="vertical"]):not([titlepreface*="\2061"]:has(#urlbar:is([focused], :focus-within))):has(
       #navigator-toolbox:hover,
       #navigator-toolbox[movingtab],
       #navigator-toolbox toolbarbutton[open="true"],
@@ -255,7 +255,7 @@
     }
 
     /* Only the native editor and its results escape the hidden ancestors. */
-    &[titlepreface*="\2064"][titlepreface*="\2061"]:has(#navigator-toolbox #urlbar[focused]) {
+    &[titlepreface*="\2064"][titlepreface*="\2061"]:has(#navigator-toolbox #urlbar:is([focused], :focus-within)) {
       &[titlepreface*="\2063"] :is(#sidebar-container, #sidebar-main) {
         opacity: 0 !important;
         visibility: hidden !important;
@@ -286,7 +286,7 @@
         transform: none !important;
         opacity: 1 !important;
       }
-      #urlbar[focused] {
+      #urlbar:is([focused], :focus-within) {
         --compact-mode-input-height: 48px;
         --urlbar-height: var(--compact-mode-input-height) !important;
         --urlbar-background-overhang-open: 0px !important;
@@ -324,12 +324,12 @@
         z-index: 1001 !important;
         transition: none !important;
       }
-      #urlbar[focused][popover-open] {
+      #urlbar:is([focused], :focus-within)[popover-open] {
         border-end-start-radius: 0 !important;
         border-end-end-radius: 0 !important;
         box-shadow: none !important;
       }
-      #urlbar[focused] > .urlbar-input-container {
+      #urlbar:is([focused], :focus-within) > .urlbar-input-container {
         width: 100% !important;
         height: 100% !important;
         min-height: 0 !important;
@@ -342,9 +342,9 @@
         background: transparent !important;
         visibility: visible !important;
       }
-      #urlbar[focused] :is(.urlbar-background, .urlbarView-background),
-      #urlbar[focused] #page-action-buttons { display: none !important; }
-      #urlbar[focused] .urlbarView {
+      #urlbar:is([focused], :focus-within) :is(.urlbar-background, .urlbarView-background),
+      #urlbar:is([focused], :focus-within) #page-action-buttons { display: none !important; }
+      #urlbar:is([focused], :focus-within) .urlbarView {
         visibility: visible !important;
         pointer-events: auto !important;
         max-height: min(55vh, calc(100vh - var(--compact-mode-editor-top) - 64px)) !important;
@@ -360,7 +360,7 @@
         border-radius: 0 0 12px 12px !important;
         box-shadow: 0 12px 24px rgba(0, 0, 0, 0.18) !important;
       }
-      #urlbar[focused] .urlbarView:popover-open {
+      #urlbar:is([focused], :focus-within) .urlbarView:popover-open {
         position: fixed !important;
         position-anchor: none !important;
         position-area: none !important;
@@ -372,7 +372,7 @@
         justify-self: auto !important;
         transform: translateX(-50%) !important;
       }
-      #urlbar[focused] .urlbarView-results {
+      #urlbar:is([focused], :focus-within) .urlbarView-results {
         width: 100% !important;
         margin-inline: 0 !important;
       }

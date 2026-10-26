@@ -54,7 +54,7 @@ function isCssInstalled() {
   document.documentElement.append(probe);
   const value = getComputedStyle(probe).getPropertyValue("--compact-mode-css").trim();
   probe.remove();
-  return value === "comfort-v6";
+  return value === "comfort-v7";
 }
 
 function updateSetupBadge() {
