@@ -22,7 +22,7 @@
    Only matches the extension's own pages, never websites. */
 @-moz-document url-prefix("moz-extension://") {
   #compact-mode-probe {
-    --compact-mode-css: comfort-v5;
+    --compact-mode-css: comfort-v6;
   }
 }
 
@@ -132,7 +132,7 @@
        the same way Firefox's own "expand on hover" sidebar floats. ---------- */
 
     &[titlepreface*="\2063"]:has(#tabbrowser-tabs[orient="vertical"]) {
-      #sidebar-container {
+      :is(#sidebar-container, #sidebar-main) {
         position: absolute !important;
         inset-block: 0 !important;
         inset-inline-start: 0 !important;
@@ -152,13 +152,13 @@
       }
 
       /* Sidebar set to the right side of the window */
-      #sidebar-container[sidebar-positionend] {
+      :is(#sidebar-container, #sidebar-main)[sidebar-positionend] {
         inset-inline-start: auto !important;
         inset-inline-end: 0 !important;
         transform: translateX(calc(100% - var(--compact-mode-hot-zone))) !important;
       }
 
-      #sidebar-container:is(:hover, :focus-within, :has([movingtab], [open="true"])) {
+      :is(#sidebar-container, #sidebar-main):is(:hover, :focus-within, :has([movingtab], [open="true"])) {
         transform: none !important;
         opacity: 1 !important;
         transition-delay: 0s !important;
@@ -173,7 +173,7 @@
     /* Both surfaces stay out of page layout, including during fades. */
     &[titlepreface*="\2063"][titlepreface*="\2064"]:has(#tabbrowser-tabs[orient="vertical"]) {
       #navigator-toolbox,
-      #sidebar-container {
+      :is(#sidebar-container, #sidebar-main) {
         position: fixed !important;
         inset: auto !important;
         transform: none !important;
@@ -193,7 +193,7 @@
         max-height: none !important;
         border-block-width: 0 !important;
       }
-      #sidebar-container {
+      :is(#sidebar-container, #sidebar-main) {
         /* Use the real toolbar bottom, including bookmarks/density changes.
            Neither surface ever reserves width or height in page layout. */
         position-anchor: --compact-comfort-toolbox !important;
@@ -204,14 +204,14 @@
         max-width: 75vw !important;
         margin-inline: 0 !important;
       }
-      #sidebar-container[sidebar-positionend] {
+      :is(#sidebar-container, #sidebar-main)[sidebar-positionend] {
         inset-inline: auto 0 !important;
       }
       /* Native expand-on-hover must not reserve a launcher gap for us. */
       #tabbrowser-tabbox { margin-inline: 0 !important; }
       /* These targets remain hit-testable while the real bars are hidden. */
       #navigator-toolbox::before,
-      #sidebar-container::before {
+      :is(#sidebar-container, #sidebar-main)::before {
         content: "";
         position: fixed;
         visibility: visible;
@@ -223,12 +223,12 @@
         inset: 0 0 auto 0;
         height: var(--compact-mode-hot-zone);
       }
-      #sidebar-container::before {
+      :is(#sidebar-container, #sidebar-main)::before {
         inset-block: var(--compact-mode-hot-zone) 0;
         inset-inline: 0 auto;
         width: var(--compact-mode-hot-zone);
       }
-      #sidebar-container[sidebar-positionend]::before {
+      :is(#sidebar-container, #sidebar-main)[sidebar-positionend]::before {
         inset-inline: auto 0;
       }
     }
@@ -238,25 +238,25 @@
       #navigator-toolbox:hover,
       #navigator-toolbox[movingtab],
       #navigator-toolbox toolbarbutton[open="true"],
-      #sidebar-container:hover,
-      #sidebar-container:focus-within,
-      #sidebar-container [movingtab],
-      #sidebar-container [open="true"]
+      :is(#sidebar-container, #sidebar-main):hover,
+      :is(#sidebar-container, #sidebar-main):focus-within,
+      :is(#sidebar-container, #sidebar-main) [movingtab],
+      :is(#sidebar-container, #sidebar-main) [open="true"]
     ) {
       #navigator-toolbox,
-      #sidebar-container {
+      :is(#sidebar-container, #sidebar-main) {
         opacity: 1 !important;
         visibility: visible !important;
         pointer-events: auto !important;
         transition-delay: 0s !important;
       }
       #navigator-toolbox::before,
-      #sidebar-container::before { pointer-events: none !important; }
+      :is(#sidebar-container, #sidebar-main)::before { pointer-events: none !important; }
     }
 
     /* Only the native editor and its results escape the hidden ancestors. */
     &[titlepreface*="\2064"][titlepreface*="\2061"]:has(#navigator-toolbox #urlbar[focused]) {
-      &[titlepreface*="\2063"] #sidebar-container {
+      &[titlepreface*="\2063"] :is(#sidebar-container, #sidebar-main) {
         opacity: 0 !important;
         visibility: hidden !important;
         pointer-events: none !important;
@@ -275,7 +275,7 @@
         z-index: 1000 !important;
       }
       #navigator-toolbox::before,
-      #sidebar-container::before { pointer-events: none !important; }
+      :is(#sidebar-container, #sidebar-main)::before { pointer-events: none !important; }
       #navigator-toolbox :is(#TabsToolbar, #nav-bar, #PersonalToolbar, #urlbar-container) {
         visibility: hidden !important;
       }

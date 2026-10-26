@@ -2,7 +2,7 @@
 
 An experimental, unsigned fork of [Firefox Compact by rs4t](https://github.com/rs4t/firefox-compact), with larger hover targets, delayed hiding, coordinated toolbar/sidebar reveal, and an optional centred native address editor.
 
-Current version: **0.4.3**. The original MIT license and copyright are preserved in [LICENSE](LICENSE), the upstream history remains intact, and the original documentation is in [README-upstream.md](README-upstream.md). This is an independent fork, not the upstream author's official release.
+Current version: **0.4.4**. The original MIT license and copyright are preserved in [LICENSE](LICENSE), the upstream history remains intact, and the original documentation is in [README-upstream.md](README-upstream.md). This is an independent fork, not the upstream author's official release.
 
 ## Behavior
 
@@ -36,7 +36,7 @@ On Windows, the inherited [install.ps1](install.ps1) is an alternative installer
 
 Temporary add-ons disappear after Firefox exits. Reload the add-on after every restart. This project has not been submitted for Mozilla signing; it is not a permanently installable signed release.
 
-Both stylesheet checks require the **comfort-v5** marker bundled with 0.4.3. Updating the extension without replacing older profile CSS can leave the setup warning visible.
+Both stylesheet checks require the **comfort-v6** marker bundled with 0.4.4. Updating the extension without replacing older profile CSS can leave the setup warning visible.
 
 ## Permissions and privacy
 
@@ -44,9 +44,9 @@ The manifest requests only `storage`. The extension stores settings locally and 
 
 ## Compatibility and verification
 
-The manifest declares Firefox 140 or newer. Development used Firefox 158 browser styles; that minimum version is not a claim that all versions have been visually tested. The CSS uses unsupported browser-chrome customization and CSS anchoring, so Firefox updates or themes may require changes. Fullscreen and Customize modes are excluded.
+The manifest declares Firefox 140 or newer. Development used Firefox 158 browser styles; that minimum version is not a claim that all versions have been visually tested. The CSS supports both the older `#sidebar-container` and newer `#sidebar-main` vertical-tab layouts. It uses unsupported browser-chrome customization and CSS anchoring, so Firefox updates or themes may require changes. Fullscreen and Customize modes are excluded.
 
-JavaScript syntax and stylesheet marker checks have passed locally. **Live hover animations, page dimensions, and centred suggestion alignment remain unverified.** The source import preserves the saved 0.4.3 runtime files rather than claiming these visual requirements are already proven.
+The 0.4.4 stylesheet updates the vertical-sidebar target for Firefox's newer interface. **Live hover animations, page dimensions, and centred suggestion alignment remain unverified.**
 
 ## History
 

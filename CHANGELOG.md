@@ -2,6 +2,11 @@
 
 This records saved Compact Comfort source snapshots recovered into Git history. Entries describe source changes, not independently verified live browser behavior.
 
+## 0.4.4
+
+- Apply the coordinated fixed sidebar overlay to Firefox's newer `#sidebar-main` vertical-tab sidebar as well as the earlier `#sidebar-container` layout.
+- Bump the stylesheet setup marker so the extension warns when an older profile stylesheet is still installed.
+
 ## 0.4.3
 
 - Keep Both-mode toolbar and sidebar fixed over the page.
