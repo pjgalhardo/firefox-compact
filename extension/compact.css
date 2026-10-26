@@ -22,7 +22,7 @@
    Only matches the extension's own pages, never websites. */
 @-moz-document url-prefix("moz-extension://") {
   #compact-mode-probe {
-    --compact-mode-css: comfort-v7;
+    --compact-mode-css: comfort-v8;
   }
 }
 
@@ -188,6 +188,10 @@
           visibility 0s linear calc(var(--compact-mode-hide-delay) + var(--compact-mode-duration)) !important;
       }
       #navigator-toolbox {
+        /* Native Ctrl+L cannot focus an input under visibility:hidden.
+           Opacity hides this surface while preserving keyboard focus. */
+        visibility: visible !important;
+        transition: opacity var(--compact-mode-duration) ease var(--compact-mode-hide-delay) !important;
         anchor-name: --compact-comfort-toolbox !important;
         inset: 0 0 auto 0 !important;
         max-height: none !important;
