@@ -170,11 +170,11 @@
       }
     }
 
-    /* Preserve native slots until the entire pair finishes fading out. */
+    /* Both surfaces stay out of page layout, including during fades. */
     &[titlepreface*="\2063"][titlepreface*="\2064"]:has(#tabbrowser-tabs[orient="vertical"]) {
       #navigator-toolbox,
       #sidebar-container {
-        position: relative !important;
+        position: fixed !important;
         inset: auto !important;
         transform: none !important;
         translate: none !important;
@@ -185,19 +185,30 @@
         min-height: 0 !important;
         transition:
           opacity var(--compact-mode-duration) ease var(--compact-mode-hide-delay),
-          visibility 0s linear calc(var(--compact-mode-hide-delay) + var(--compact-mode-duration)),
-          max-height 0s linear calc(var(--compact-mode-hide-delay) + var(--compact-mode-duration)),
-          max-width 0s linear calc(var(--compact-mode-hide-delay) + var(--compact-mode-duration)) !important;
+          visibility 0s linear calc(var(--compact-mode-hide-delay) + var(--compact-mode-duration)) !important;
       }
       #navigator-toolbox {
-        max-height: 0 !important;
+        anchor-name: --compact-comfort-toolbox !important;
+        inset: 0 0 auto 0 !important;
+        max-height: none !important;
         border-block-width: 0 !important;
       }
       #sidebar-container {
+        /* Use the real toolbar bottom, including bookmarks/density changes.
+           Neither surface ever reserves width or height in page layout. */
+        position-anchor: --compact-comfort-toolbox !important;
+        position-visibility: always !important;
+        inset-block: anchor(--compact-comfort-toolbox bottom) 0 !important;
+        inset-inline: 0 auto !important;
         min-width: 0 !important;
-        max-width: 0 !important;
+        max-width: 75vw !important;
         margin-inline: 0 !important;
       }
+      #sidebar-container[sidebar-positionend] {
+        inset-inline: auto 0 !important;
+      }
+      /* Native expand-on-hover must not reserve a launcher gap for us. */
+      #tabbrowser-tabbox { margin-inline: 0 !important; }
       /* These targets remain hit-testable while the real bars are hidden. */
       #navigator-toolbox::before,
       #sidebar-container::before {
@@ -239,8 +250,6 @@
         pointer-events: auto !important;
         transition-delay: 0s !important;
       }
-      #navigator-toolbox { max-height: 1000px !important; }
-      #sidebar-container { max-width: 75vw !important; }
       #navigator-toolbox::before,
       #sidebar-container::before { pointer-events: none !important; }
     }
@@ -251,7 +260,6 @@
         opacity: 0 !important;
         visibility: hidden !important;
         pointer-events: none !important;
-        max-width: 0 !important;
         transition: none !important;
       }
       #navigator-toolbox {
