@@ -4,11 +4,12 @@ const DEFAULTS = {
   hoverSize: "comfortable",
   hideDelay: "normal",
   centeredUrlbarV2: false,
+  editorOverlays: true,
 };
 const $ = (id) => document.getElementById(id);
 
 function isCssInstalled() {
-  return getComputedStyle($("compact-mode-probe")).getPropertyValue("--compact-mode-css").trim() === "comfort-v11";
+  return getComputedStyle($("compact-mode-probe")).getPropertyValue("--compact-mode-css").trim() === "comfort-v12";
 }
 
 async function copy(button, text) {
@@ -57,7 +58,13 @@ async function init() {
   });
 
   $("centered-urlbar").checked = state.centeredUrlbarV2;
+  $("editor-overlays").value = state.editorOverlays ? "with" : "without";
+  $("editor-overlays").disabled = !state.centeredUrlbarV2;
+  $("editor-overlays").addEventListener("change", (event) => {
+    browser.storage.local.set({ editorOverlays: event.target.value === "with" });
+  });
   $("centered-urlbar").addEventListener("change", (event) => {
+    $("editor-overlays").disabled = !event.target.checked;
     browser.storage.local.set({ centeredUrlbarV2: event.target.checked });
   });
 

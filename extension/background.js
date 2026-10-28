@@ -14,6 +14,7 @@ const DEFAULTS = {
   // New key deliberately leaves the earlier experimental editor off after
   // updating. Firefox 158's suggestion popover did not track it reliably.
   centeredUrlbarV2: false,
+  editorOverlays: true,
 };
 const HOVER_MARKERS = { smaller: "\u200B", comfortable: "", larger: "\u200C" };
 const DELAY_MARKERS = { quick: "\u200E", normal: "", slow: "\u200F" };
@@ -27,7 +28,8 @@ function prefaceFor(state) {
     ? (MARKERS[state.mode] ?? MARKERS.both) +
       (HOVER_MARKERS[state.hoverSize] ?? "") +
       (DELAY_MARKERS[state.hideDelay] ?? "") +
-      (state.centeredUrlbarV2 ? "\u2061" : "")
+      (state.centeredUrlbarV2 ? "\u2061" : "") +
+      (state.centeredUrlbarV2 && !state.editorOverlays ? "\u2062" : "")
     : "";
 }
 
@@ -54,7 +56,7 @@ function isCssInstalled() {
   document.documentElement.append(probe);
   const value = getComputedStyle(probe).getPropertyValue("--compact-mode-css").trim();
   probe.remove();
-  return value === "comfort-v11";
+  return value === "comfort-v12";
 }
 
 function updateSetupBadge() {
@@ -82,7 +84,7 @@ browser.commands.onCommand.addListener(async (command) => {
 });
 
 browser.storage.onChanged.addListener((changes, area) => {
-  if (area === "local" && ("enabled" in changes || "mode" in changes || "hoverSize" in changes || "hideDelay" in changes || "centeredUrlbarV2" in changes)) {
+  if (area === "local" && ("enabled" in changes || "mode" in changes || "hoverSize" in changes || "hideDelay" in changes || "centeredUrlbarV2" in changes || "editorOverlays" in changes)) {
     applyToAllWindows();
   }
 });

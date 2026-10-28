@@ -22,7 +22,9 @@ body {
   margin-bottom: 5px;
 }
 
-#hover-size {
+#hover-size,
+#hide-delay,
+#editor-overlays {
   box-sizing: border-box;
   width: 100%;
   padding: 7px;

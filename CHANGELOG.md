@@ -2,6 +2,12 @@
 
 This records saved Compact Comfort source snapshots recovered into Git history. Entries describe source changes, not independently verified live browser behavior.
 
+## 0.4.10
+
+- Add a centred-editor setting to show the toolbar/sidebar during editing or keep the configured compact overlays concealed. Existing users keep overlays visible by default.
+- Apply the setting to both native Ctrl+L and mouse address focus, without new permissions or a privileged helper. Native Escape behavior is unchanged.
+- Bump the stylesheet marker to comfort-v12.
+
 ## 0.4.9
 
 - Remove the outer page border, corner radius, outline, and shadow in compact mode while preserving split-view pane separators.

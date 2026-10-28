@@ -22,7 +22,7 @@
    Only matches the extension's own pages, never websites. */
 @-moz-document url-prefix("moz-extension://") {
   #compact-mode-probe {
-    --compact-mode-css: comfort-v11;
+    --compact-mode-css: comfort-v12;
   }
 }
 
@@ -370,8 +370,8 @@
       }
     }
 
-    /* Keep both native surfaces available throughout centred editing.
-       CSS cannot reliably retain the mouse-versus-keyboard focus origin. */
+    /* Centred editing uses the native field for both mouse and keyboard focus.
+       U+2062 optionally conceals the surrounding compact overlays. */
     &[titlepreface*="\2064"][titlepreface*="\2061"]:has(#navigator-toolbox #urlbar:is([focused], :focus-within)) {
       #navigator-toolbox {
         transform: none !important;
@@ -486,6 +486,27 @@
       #urlbar:is([focused], :focus-within) .urlbarView-results {
         width: 100% !important;
         margin-inline: 0 !important;
+      }
+      &[titlepreface*="\2062"] {
+        /* Visibility hides the parent chrome without making the focused
+           native field transparent. The field and suggestions explicitly
+           restore visibility above; opacity must remain 1 on their parents. */
+        #navigator-toolbox:has(#urlbar),
+        #navigator-toolbox:has(#urlbar)::before,
+        #navigator-toolbox :is(toolbar, #urlbar-container) {
+          visibility: hidden !important;
+          pointer-events: none !important;
+        }
+        &[titlepreface*="\2063"] :is(#sidebar-container, #sidebar-main) {
+          opacity: 0 !important;
+          visibility: hidden !important;
+          pointer-events: none !important;
+          transition: none !important;
+        }
+        &[titlepreface*="\2063"] :is(#sidebar-container, #sidebar-main)::before {
+          visibility: hidden !important;
+          pointer-events: none !important;
+        }
       }
     }
   }

@@ -2,17 +2,17 @@
 
 An experimental, unsigned fork of [Firefox Compact by rs4t](https://github.com/rs4t/firefox-compact), with larger hover targets, delayed hiding, coordinated toolbar/sidebar reveal, and an optional centred native address editor.
 
-Current version: **0.4.9**. The original MIT license and copyright are preserved in [LICENSE](LICENSE), the upstream history remains intact, and the original documentation is in [README-upstream.md](README-upstream.md). This is an independent fork, not the upstream author's official release.
+Current version: **0.4.10**. The original MIT license and copyright are preserved in [LICENSE](LICENSE), the upstream history remains intact, and the original documentation is in [README-upstream.md](README-upstream.md). This is an independent fork, not the upstream author's official release.
 
 ## Behavior
 
 - Hide the tab bar, URL bar, or both. In Both mode with vertical tabs, hovering either edge is intended to reveal the toolbar and sidebar together as continuous overlays without resizing the page.
 - In URL-bar-only mode with vertical tabs, hover the top edge to reveal the toolbar beside the visible sidebar. Page loading and ordinary mouse focus do not reveal it automatically.
 - Choose 8, 16, or 24 px hover areas and quick, normal, or slow hide delays. The default hover area is 16 px with a 650 ms hide delay.
-- Optionally enable **Centred address editor** for Ctrl+L (Command+L on macOS). This uses Firefox's native field and suggestions. Both-mode toolbar and sidebar remain visible and usable throughout editing. It is disabled by default and remains experimental.
+- Optionally enable **Centred address editor** for Ctrl+L (Command+L on macOS). This uses Firefox's native field and suggestions. Choose **Show toolbar and sidebar** (the default) or **Show address editor only** while editing. The latter keeps the configured compact overlays concealed, including on hover, until editing ends. It is disabled by default and remains experimental.
 - Toggle compact mode with Ctrl+Alt+C on Windows/Linux or Control+Option+C on macOS. Firefox's extension shortcut settings can change this.
 
-Larger invisible hover areas cover more of the page edge. Choose Smaller if they interfere with page controls. Compact mode removes the outer page border and rounded corners. Address focus uses the centred editor whether it came from a mouse click or Ctrl+L; keeping both surfaces visible avoids an abrupt toolbar disappearance. Escape retains Firefox's native sequence of closing suggestions before leaving the field.
+Larger invisible hover areas cover more of the page edge. Choose Smaller if they interfere with page controls. Compact mode removes the outer page border and rounded corners. Address focus uses the centred editor whether it came from a mouse click or Ctrl+L; the editing visibility setting applies to both ways of focusing the field. In modes that hide only one surface, the other keeps its normal layout. Escape retains Firefox's native sequence of closing suggestions before leaving the field.
 
 ## Install
 
@@ -37,7 +37,7 @@ On Windows, the inherited [install.ps1](install.ps1) is an alternative installer
 
 Temporary add-ons disappear after Firefox exits. Reload the add-on after every restart. This project has not been submitted for Mozilla signing; it is not a permanently installable signed release.
 
-Both stylesheet checks require the **comfort-v11** marker bundled with 0.4.9. Updating the extension without replacing older profile CSS can leave the setup warning visible.
+Both stylesheet checks require the **comfort-v12** marker bundled with 0.4.10. Updating the extension without replacing older profile CSS can leave the setup warning visible.
 
 ## Permissions and privacy
 
@@ -47,7 +47,7 @@ The manifest requests only `storage`. The extension stores settings locally and 
 
 The manifest declares Firefox 140 or newer. Development used Firefox 158 browser styles; that minimum version is not a claim that all versions have been visually tested. The CSS supports both the older `#sidebar-container` and newer `#sidebar-main` vertical-tab layouts. It uses unsupported browser-chrome customization and CSS anchoring, so Firefox updates or themes may require changes. Fullscreen and Customize modes are excluded.
 
-Isolated Firefox 158.0.1 checks cover the real browser interface's address-submission/loading transition, theme gradients, page frame, and visibility of both surfaces during editing. Fixture checks also cover sidebar placement and stable page dimensions. Theme combinations and centred suggestion alignment remain experimental.
+Isolated Firefox 158.0.1 checks cover the real browser interface's address-submission/loading transition, theme gradients, page frame, and both editing visibility options, including hovering the concealed edges and unchanged page dimensions. Fixture checks also cover sidebar placement and stable page dimensions. Theme combinations and centred suggestion alignment remain experimental.
 
 ## History
 
